@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Command Center | Marca País Media</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- BASE --- */
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; background-color: #000; color: #fff;
+            font-family: 'Poppins', sans-serif; overflow-x: hidden; width: 100%;
+            scroll-behavior: smooth;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000;
+            transition: opacity 1s ease, visibility 1s; cursor: pointer;
+        }
+        .splash-logo { max-height: 100px; filter: brightness(0) invert(1); animation: pulse 2s infinite ease-in-out; }
+        .splash-text { margin-top: 20px; font-size: 0.6rem; letter-spacing: 5px; text-transform: uppercase; opacity: 0.5; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+
+        /* --- NAVEGACIÓN --- */
+        #main-content { opacity: 0; transition: opacity 1s ease; display: none; width: 100%; }
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 20px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+        }
+        .logo-nav img { max-height: 35px; filter: brightness(0) invert(1); cursor: pointer; }
+        .nav-links a { color: #fff; text-decoration: none; margin-left: 20px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; opacity: 0.7; transition: 0.3s; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active-link { opacity: 1; color: #007bff; }
+
+        /* --- DASHBOARD GRID --- */
+        .weeks-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;
+            padding: 0 10% 40px 10%; max-width: 1400px; 
+            margin: 110px auto 0 auto; 
+            position: relative; z-index: 10;
+        }
+        .week-card {
+            background: #0a0a0a; border: 1px solid #1a1a1a; padding: 25px 10px;
+            text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .week-card.active { background: #fff; border-color: #fff; }
+        .week-card h3 { font-size: 0.55rem; letter-spacing: 3px; opacity: 0.4; margin-bottom: 5px; text-transform: uppercase; }
+        .week-card h4 { font-size: 0.85rem; font-weight: 800; margin: 0; text-transform: uppercase; }
+        .week-card.active h3, .week-card.active h4 { color: #000; opacity: 1; }
+
+        /* --- CONTENIDO DINÁMICO --- */
+        .dynamic-content { display: none; padding: 120px 10% 60px 10%; max-width: 1200px; margin: 0 auto; animation: fadeInUp 0.6s ease forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .plan-header { margin-bottom: 60px; border-left: 3px solid #fff; padding-left: 20px; }
+        .plan-header h2 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800; text-transform: uppercase; line-height: 1.1; margin: 0; }
+        .plan-header p { opacity: 0.5; font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 5px; }
+
+        /* --- BOTÓN NOTIFICACIÓN --- */
+        .btn-share-update {
+            display: inline-flex;
+            align-items: center;
+            background: #25D366;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 25px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+        }
+        .btn-share-update:hover { 
+            background: #1ebe57; 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4);
+        }
+
+        /* --- ITEMS Y TÍTULOS --- */
+        .item-block { margin-bottom: 80px; padding-bottom: 40px; border-bottom: 1px solid #1a1a1a; }
+        .item-block:last-child { border-bottom: none; }
+        .item-title { 
+            font-size: clamp(1.2rem, 3vw, 1.6rem); 
+            font-weight: 900; 
+            color: #fff; 
+            text-transform: uppercase; 
+            margin-bottom: 25px; 
+            letter-spacing: 1px; 
+            border-left: 5px solid #007bff; 
+            padding-left: 20px; 
+            line-height: 1.3;
+        }
+
+        /* --- VIDEOS --- */
+        .video-container-vimeo { position: relative; width: 100%; padding-bottom: 56.25%; background: #050505; border: 1px solid #111; margin-bottom: 25px; border-radius: 4px; overflow: hidden; }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        /* --- NARRATIVAS --- */
+        .narrativa-box { font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.9); text-align: justify; margin-bottom: 25px; border-left: 1px solid #333; padding-left: 25px; font-weight: 200; }
+        .narrativa-box strong { font-weight: 800; color: #fff; }
+
+        /* --- FEEDBACK CARRITO --- */
+        .product-feedback { background: #050505; padding: 25px; border: 1px solid #111; margin-top: 25px; border-radius: 4px; width: 100%; }
+        .product-feedback label { font-size: 0.6rem; letter-spacing: 2px; color: #444; text-transform: uppercase; font-weight: 800; }
+        .product-feedback textarea { width: 100%; height: 80px; background: #000; border: 1px solid #222; color: #fff; padding: 15px; font-family: 'Poppins'; font-size: 0.85rem; resize: none; margin: 15px 0; display: block; }
+        .btn-action { background: #fff; color: #000; border: none; padding: 15px 25px; font-size: 0.65rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.3s; width: 100%; }
+        .btn-action:hover { background: #007bff; color: #fff; }
+
+        #cart-floater { position: fixed; bottom: 30px; right: 30px; z-index: 1000; background: #007bff; color: #fff; width: 60px; height: 60px; border-radius: 50%; display: none; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 10px 30px rgba(0,123,255,0.4); transition: 0.3s; }
+        #cart-panel { position: fixed; top: 0; right: -100%; width: 400px; height: 100%; background: #0a0a0a; z-index: 1100; transition: 0.5s; padding: 40px; border-left: 1px solid #222; overflow-y: auto; }
+        #cart-panel.open { right: 0; }
+        .cart-item { border-bottom: 1px solid #222; padding: 15px 0; font-size: 0.8rem; }
+
+        /* --- TRIVIA --- */
+        .trivia-container { background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; margin-bottom: 25px; }
+        .trivia-option { border: 1px solid #222; padding: 15px; margin-bottom: 10px; font-size: 0.85rem; opacity: 0.5; transition: 0.3s; }
+        .trivia-option.correct { border: 1px solid #fff; background: rgba(255,255,255,0.05); opacity: 1; font-weight: 600; }
+
+        /* --- RESUMEN GERENCIAL --- */
+        .resumen-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .resumen-item { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 25px; border-left: 4px solid #007bff; }
+        .resumen-item h4 { margin: 0 0 10px 0; font-size: 0.85rem; text-transform: uppercase; color: #007bff; }
+        .resumen-item p { margin: 0; font-size: 0.8rem; line-height: 1.6; color: #ccc; }
+
+        /* --- PANEL PRODUCCIÓN --- */
+        .prod-selector { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; overflow-x: auto; }
+        .btn-week-sel { background: transparent; border: 1px solid #333; color: #555; padding: 10px 20px; font-size: 0.6rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; white-space: nowrap; }
+        .btn-week-sel.active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
+        .prod-container { display: grid; grid-template-columns: 320px 1fr; gap: 30px; background: #0a0a0a; border: 1px solid #1a1a1a; padding: 40px; }
+        .prod-sidebar { border-right: 1px solid #1a1a1a; padding-right: 30px; }
+        .status-badge { display: inline-block; padding: 6px 12px; font-size: 0.6rem; font-weight: 900; background: #007bff; color: #fff; text-transform: uppercase; margin-bottom: 20px; }
+        .prod-field { margin-bottom: 25px; }
+        .prod-field label { display: block; font-size: 0.6rem; color: #444; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
+        .prod-input { width: 100%; background: #000; border: 1px solid #222; padding: 15px; color: #fff; font-family: 'Poppins'; font-size: 0.8rem; margin-top: 10px; }
+
+        footer { padding: 80px 20px; text-align: center; opacity: 0.2; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; }
+
+        @media (max-width: 768px) { #cart-panel { width: 100%; } .weeks-grid { grid-template-columns: repeat(2, 1fr); margin-top: 80px; } .prod-container { grid-template-columns: 1fr; } .prod-sidebar { border-right: none; border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; } }
+    </style>
+</head>
+<body>
+
+    <audio id="enter-sound" src="https://dl.dropboxusercontent.com/scl/fi/h3eexm0ygvvconlsr0c11/SONIDO-VEN-WEB.mp3?rlkey=iafe3l5krlym6kxxzu39s70wo&st=vbsvoqwd&dl=1" preload="auto"></audio>
+
+    <div id="splash-screen" onclick="enterSite()">
+        <img src="https://www.ciip.com.ve/wp-content/uploads/2022/02/azul-menu.png" class="splash-logo" alt="Marca País">
+        <div class="splash-text">ACCESS GRANTED | MARCA PAÍS MEDIA</div>
+    </div>
+
+    <div id="cart-floater" onclick="toggleCart()"><span id="cart-count">0</span></div>
+
+    <div id="cart-panel">
+        <h2 style="font-weight: 900; text-transform: uppercase;">Revisiones</h2>
+        <div id="cart-items-list"></div>
+        <button class="btn-action" onclick="sendFinalWhatsApp()" style="background: #25D366; color: #fff; margin-top: 30px;">ENVIAR A WHATSAPP</button>
+        <button class="btn-action" onclick="toggleCart()" style="background: transparent; border: 1px solid #333; color: #555; margin-top: 10px;">CERRAR</button>
+    </div>
+
+    <div id="main-content">
+        <nav>
+            <div class="logo-nav" onclick="location.reload()"><img src="https://www.ciip.com.ve/wp-content/uploads/2022/02/azul-menu.png" alt="Marca País"></div>
+            <div class="nav-links">
+                <a id="nav-dash" class="active-link" onclick="showSection('dashboard')">Dashboard</a>
+                <a id="nav-resumen" onclick="showSection('resumen')">Resumen Gerencial</a>
+                <a id="nav-prod" onclick="showSection('production')">Producción</a>
+            </div>
+        </nav>
+
+        <section class="weeks-grid" id="weeks-selector">
+            <div class="week-card active" onclick="showWeek(1, this)"><h3>Mes 1</h3><h4>Semana 1</h4></div>
+            <div class="week-card" onclick="showWeek(2, this)"><h3>Mes 1</h3><h4>Semana 2</h4></div>
+            <div class="week-card" onclick="showWeek(3, this)"><h3>Mes 1</h3><h4>Semana 3</h4></div>
+            <div class="week-card" onclick="showWeek(4, this)"><h3>Mes 1</h3><h4>Semana 4</h4></div>
+        </section>
+
+        <div id="resumen-tab" class="dynamic-content">
+            <div class="plan-header"><p>Roadmap</p><h2>Estrategia Mensual de Contenidos</h2></div>
+            <div class="resumen-grid">
+                <div class="resumen-item"><h4>Semana 1: Siderúrgica</h4><p>Piezas centradas en la soberanía industrial, el procesamiento del hierro y la magnitud del Estadio Monumental.</p></div>
+                <div class="resumen-item"><h4>Semana 2: Excelencia Agraria</h4><p>Foco en la Ruta del Sabor (Café/Cacao), la exclusividad del Geisha y el desarrollo de tecnología nacional.</p></div>
+                <div class="resumen-item"><h4>Semana 3: Economía Azul</h4><p>Divulgación sobre algas deshidratadas y la posición líder del camarón venezolano en mercados globales.</p></div>
+                <div class="resumen-item"><h4>Semana 4: Glorias Deportivas</h4><p>Resalte del talento atlético nacional, la resiliencia de Yulimar Rojas y la precisión de Dakota Ferrer.</p></div>
+            </div>
+        </div>
+
+        <div id="production-tab" class="dynamic-content">
+            <div class="plan-header"><p>Realizador Master</p><h2>Command Center</h2></div>
+            <div class="prod-selector">
+                <button class="btn-week-sel active" onclick="loadProdWeek(1, this)">Semana 1</button>
+                <button class="btn-week-sel" onclick="loadProdWeek(2, this)">Semana 2</button>
+                <button class="btn-week-sel" onclick="loadProdWeek(3, this)">Semana 3</button>
+                <button class="btn-week-sel" onclick="loadProdWeek(4, this)">Semana 4</button>
+            </div>
+            <div class="prod-container">
+                <div class="prod-sidebar">
+                    <div class="status-badge" id="prod-status-tag">Semana 1 en Carga</div>
+                    <h4 id="prod-title-tag" style="margin:0; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;">INDUSTRIA Y ACERO</h4>
+                    <p style="font-size: 0.65rem; opacity: 0.4; margin-top: 15px; line-height: 1.6;">
+                        Configuración Técnica:<br>
+                        • Cuerpo: Sony FX6<br>
+                        • Óptica: 24mm Anamórfico<br>
+                        • Color: S-Cinetone
+                    </p>
+                    <hr style="border: 0; border-top: 1px solid #1a1a1a; margin: 25px 0;">
+                    <div class="prod-field">
+                        <label>Material Bruto (FX6 Link)</label>
+                        <input type="text" class="prod-input" id="raw-link" placeholder="Dropbox / Drive Link">
+                    </div>
+                </div>
+                <div class="prod-main">
+                    <div class="prod-field">
+                        <label>Vínculo del Video Final</label>
+                        <input type="text" class="prod-input" id="final-url" placeholder="https://player.vimeo.com/video/...">
+                    </div>
+                    <div class="prod-field">
+                        <label>Estado de Producción</label>
+                        <select class="prod-input" id="input-status" style="appearance: none; cursor: pointer;">
+                            <option selected>En Edición y Post-Producción</option>
+                            <option>En Revisión por Dirección</option>
+                            <option>Aprobado para Publicar</option>
+                        </select>
+                    </div>
+                    <div class="prod-field">
+                        <label>Notas para el Administrador Web</label>
+                        <textarea class="prod-input" id="prod-notes" style="height: 100px; resize: none;" placeholder="Instrucciones de despliegue..."></textarea>
+                    </div>
+                    <button class="btn-action" onclick="sendProductionEmail()">Notificar al Administrador (Email)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="week-1" class="dynamic-content" style="display: block;">
+            <div class="plan-header">
+                <p>Semana 1: Industria de hierro y Acero (Lo que nos sostiene)</p>
+                <h2>Objetivo: Demostrar que el acero venezolano es la fuerza real que levanta las obras más grandes del país.</h2>
+                <button class="btn-share-update" onclick="shareUpdate(1)">🚀 Notificar Novedades (WhatsApp)</button>
+            </div>
+            
+            <div class="item-block">
+                <h3 class="item-title">VIDEO INTEGRACIONAL: Somos más que una postal (Guayana)</h3>
+                <div class="narrativa-box">"Aquí, el paisaje vale oro. Nuestra belleza conquista, pero debajo de estas tierras ruge el hierro que el mundo necesita. Aquí no somos solo una postal; exportamos la fuerza que levanta naciones. somos la potencia que forja el futuro."</div>
+                <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1185296217" frameborder="0"></iframe></div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f11" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S1: Integracional Hierro', 'f11')">Añadir a Revisión</button></div>
+            </div>
+
+            <div class="item-block">
+                <h3 class="item-title">Vzla en datos: Estadio Monumental Simón Bolívar</h3>
+                <div class="narrativa-box">"¿Sabías que bajo tus pies, cuando gritas un jonrón en La Rinconada, hay 90 mil toneladas de la fuerza pura de Venezuela? El Estadio Monumental Simón Bolívar no es solo concreto; es el monumento vivo a nuestra mayor riqueza mineral: el hierro venezolano."</div>
+                <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1181120390" frameborder="0"></iframe></div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f12" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S1: Datos Monumental', 'f12')">Añadir a Revisión</button></div>
+            </div>
+
+            <div class="item-block">
+                <h3 class="item-title">Trivia: La transformación de nuestro hierro es un proceso titánico</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 20px;">En el corazón de nuestra industria siderúrgica, los hornos trabajan a una potencia increíble. ¿A qué temperatura aproximada debe fundirse el mineral de hierro para crear el acero?</p>
+                <div class="trivia-container">
+                    <div class="trivia-option">A) 500 °C (Como un horno de pizza)</div>
+                    <div class="trivia-option">B) 800 °C (Como la lava)</div>
+                    <div class="trivia-option correct">C) Más de 1.500 °C (Temperatura de fusión industrial)</div>
+                </div>
+                <div class="narrativa-box">La transformación de nuestro hierro es un proceso titánico. En los hornos de Guayana se superan los 1.500 °C para fundir el mineral y crear el arrabio. Esa energía y esfuerzo humano es lo que levanta las estructuras de nuestro país. ¡Puro fuego y fuerza venezolana!</div>
+                <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1185292459" frameborder="0"></iframe></div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f13" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S1: Trivia Hierro', 'f13')">Añadir a Revisión</button></div>
+            </div>
+        </div>
+
+        <div id="week-2" class="dynamic-content">
+            <div class="plan-header">
+                <p>Semana 2: Oro Fértil (El alma en cada grano)</p>
+                <h2>Objetivo: Resaltar la excelencia agrícola y la tecnología con propósito.</h2>
+                <button class="btn-share-update" onclick="shareUpdate(2)">🚀 Notificar Novedades (WhatsApp)</button>
+            </div>
+            
+            <div class="item-block">
+                <h3 class="item-title">VIDEO INTEGRACIONAL: LA RUTA DEL SABOR</h3>
+                <div class="narrativa-box">"Del frío de la montaña a la brisa del litoral. Dos mundos, café y cacao, nacen para ser los mejores de la tierra... Aquí el campo y la industria hablan el mismo idioma, es tecnología con propósito. No movemos carga, movemos nuestra historia, conectamos nuestra tierra con el mundo. Venezuela no sólo exporta, Venezuela conquista. La ruta es una sola y juntos somos el puente."</div>
+                <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1181831430" frameborder="0"></iframe></div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f21" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S2: Ruta del Sabor', 'f21')">Añadir a Revisión</button></div>
+            </div>
+
+            <div class="item-block">
+                <h3 class="item-title">Vzla en datos - Café de especialidad Geisha</h3>
+                <div class="narrativa-box">
+                    "El mundo te pide que corras, pero el café hace que te detengas. Fue una semilla que esperó años para crecer. Pasó por manos que conocen el frío de la montaña, que entienden de lluvia, de sombra y de paciencia.<br><br>
+                    Mientras el mercado global se domina con volumen, Venezuela está apostando por variedades que compiten en el mercado de cafés de especialidad, donde una sola libra puede costar diez veces más que el café común en la Bolsa de Nueva York.<br><br>
+                    10 tazas de café común o un solo tesoro de café geisha, porque el buen café no se hace, se cultiva. Y es nuestro, es venezolano."
+                </div>
+                <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1185370099" frameborder="0"></iframe></div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f22" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S2: Datos Café Geisha', 'f22')">Añadir a Revisión</button></div>
+            </div>
+
+            <div class="item-block">
+                <h3 class="item-title">Trivia: El Secreto del Sabor Venezolano</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 20px;">En Venezuela, el Café y el Cacao crecen juntos bajo la sombra. Esta hermandad no es casualidad. ¿Qué sucede realmente cuando el café madura bajo la sombra del cacao y los árboles?</p>
+                <div class="trivia-container">
+                    <div class="trivia-option">A) El café se vuelve más amargo por la falta de sol.</div>
+                    <div class="trivia-option correct">B) La maduración es más lenta, concentrando azúcares y notas achocolatadas.</div>
+                    <div class="trivia-option">C) El sabor no cambia, es solo una tradición visual.</div>
+                </div>
+                <div class="narrativa-box">
+                    <strong>El argumento internacional:</strong> En los mercados de especialidad de Europa y Asia, los catadores buscan el Slow Maturation (maduración lenta). Venezuela tiene la ventaja natural de que nuestro café nace con ese "sello de exportación" gracias a la sombra del cacao, logrando una complejidad que en otras partes del mundo es difícil de replicar.<br><br>
+                    <strong>Cierre:</strong> El café venezolano no solo sabe a nuestra tierra, sabe a la paciencia de la naturaleza. La próxima vez que sientas esa nota de chocolate en tu taza, recuerda: es el regalo de haber crecido junto al mejor cacao del mundo. ☕🍫
+                </div>
+                <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1186114143" frameborder="0"></iframe></div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f23" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S2: Trivia Café', 'f23')">Añadir a Revisión</button></div>
+            </div>
+        </div>
+
+        <div id="week-3" class="dynamic-content">
+            <div class="plan-header">
+                <p>Semana 3 | El Gigante Silencioso de Venezuela</p>
+                <h2>Vzla en Datos: Venezuela exporta algas marinas deshidratadas</h2>
+                <button class="btn-share-update" onclick="shareUpdate(3)">🚀 Notificar Novedades (WhatsApp)</button>
+            </div>
+            
+            <div class="item-block">
+                <h3 class="item-title">Guion: Economía Azul</h3>
+                <div class="narrativa-box">
+                    "¿Sabías que el clima de Venezuela es el paraíso perfecto para cultivar ALGAS MARINAS? Nuestras aguas se mantienen entre los 27 y 30 grados todo el año. Este calor constante permite exportar algas de una calidad que compite en los mercados más exigentes de Asia.<br><br>
+                    Las algas son el ingrediente secreto detrás de la textura de tu pasta de dientes, el espesante natural de tus helados favoritos y el componente esencial para cápsulas de medicamentos.<br><br>
+                    Desde las costas de Nueva Esparta y Sucre, nuestros pescadores logran hasta seis cosechas al año en un proceso cien por ciento ecológico. Es la 'Venezuela Azul' en acción."
+                </div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f31" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S3: Guion Algas', 'f31')">Añadir a Revisión</button></div>
+            </div>
+
+            <div class="item-block">
+                <h3 class="item-title">Trivia: El Gigante Silencioso de Venezuela</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 20px;">¿Cuál es hoy el primer rubro de exportación no petrolera de Venezuela en términos de volumen y consistencia industrial?</p>
+                <div class="trivia-container">
+                    <div class="trivia-option">A) El Cacao (Considerado el mejor del mundo)</div>
+                    <div class="trivia-option">B) El Ron (Con Denominación de Origen Controlada)</div>
+                    <div class="trivia-option correct">C) El Camarón (Específicamente el Litopenaeus vannamei)</div>
+                    <div class="trivia-option">D) El Oro (Extraído del Arco Minero)</div>
+                </div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f32" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S3: Trivia Camarón', 'f32')">Añadir a Revisión</button></div>
+            </div>
+        </div>
+
+        <div id="week-4" class="dynamic-content">
+            <div class="plan-header">
+                <p>Semana 4: Deporte Nacional — "Glorias Deportivas"</p>
+                <h2>Objetivo: Resaltar el talento de exportación y la resiliencia de nuestra gente.</h2>
+                <button class="btn-share-update" onclick="shareUpdate(4)">🚀 Notificar Novedades (WhatsApp)</button>
+            </div>
+            
+            <div class="item-block">
+                <h3 class="item-title">Venezuela en Datos: La medida de nuestra grandeza</h3>
+                <div class="narrativa-box">
+                    "¿Sabías que en Venezuela tenemos a alguien capaz de burlar la gravedad? Un impulso tan potente que hace que la tierra se quede corta bajo sus pies.<br><br>
+                    Quince metros con setenta y cuatro centímetros. Imagina dos autobuses de pasajeros estacionados en fila. Esta persona es capaz de saltarlos de punta a punta sin tocar el techo. ¡Sí, es ella! Es nuestra <strong>Yulimar Rojas</strong>.<br><br>
+                    La reina absoluta que nos enseñó que el límite no es la arena, sino el cielo. Nada nos detiene cuando decidimos conquistar nuestra propia altura."
+                </div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f41" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S4: Micro Yulimar', 'f41')">Añadir a Revisión</button></div>
+            </div>
+
+            <div class="item-block">
+                <h3 class="item-title">Trivia de deporte: Reflejos de Oro</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 20px; font-style: italic; color: #888;">"Todos sabemos que nuestra campeona de oro, Dakota Ferrer, es rápida... pero, ¿qué tan rápido reacciona realmente al golpe de la bola?"</p>
+                <div class="trivia-container">
+                    <div class="trivia-option">A) 0.5 segundos (Chasquido de dedos)</div>
+                    <div class="trivia-option">B) 0.3 segundos (Parpadear)</div>
+                    <div class="trivia-option correct">C) Menos de 0.1 segundos</div>
+                </div>
+                <div class="narrativa-box">"¡Correcto! Es la C. Dakota reacciona en menos de 0.1 segundos. Eso es tan rápido que ni siquiera te da tiempo de parpadear. Reflejos de oro para una abanderada histórica."</div>
+                <div class="product-feedback"><label>Sugerencias:</label><textarea id="f42" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S4: Trivia Dakota', 'f42')">Añadir a Revisión</button></div>
+            </div>
+        </div>
+
+        <footer>MARCA PAÍS MEDIA &copy; 2026</footer>
+    </div>
+
+    <script>
+        const sound = document.getElementById('enter-sound');
+        let suggestions = [];
+
+        function playSound() { sound.currentTime = 0; sound.play().catch(e=>{}); }
+
+        function enterSite() {
+            playSound();
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('main-content').style.display = 'block';
+                setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 100);
+            }, 1000);
+        }
+
+        function showSection(section) {
+            playSound();
+            document.querySelectorAll('.dynamic-content').forEach(s => s.style.display = 'none');
+            document.getElementById('weeks-selector').style.display = (section === 'dashboard') ? 'grid' : 'none';
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active-link'));
+            if(section === 'dashboard') {
+                document.getElementById('nav-dash').classList.add('active-link');
+                showWeek(1, document.querySelector('.week-card'));
+            } else {
+                document.getElementById('nav-' + section).classList.add('active-link');
+                document.getElementById(section + '-tab').style.display = 'block';
+            }
+        }
+
+        function loadProdWeek(num, btn) {
+            playSound();
+            document.querySelectorAll('.btn-week-sel').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const titles = ["INDUSTRIA Y ACERO", "ORO FÉRTIL", "ECONOMÍA AZUL", "GLORIAS DEPORTIVAS"];
+            document.getElementById('prod-title-tag').innerText = titles[num-1];
+            document.getElementById('prod-status-tag').innerText = `Semana ${num} en Carga`;
+        }
+
+        function showWeek(num, el) {
+            playSound();
+            document.querySelectorAll('.dynamic-content').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.week-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('week-' + num).style.display = 'block';
+            if(el) el.classList.add('active');
+            
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?week=' + num;
+            window.history.pushState({path:newUrl}, '', newUrl);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function shareUpdate(num) {
+            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            const weekUrl = baseUrl + '?week=' + num;
+            const message = `🚀 *¡Novedades en Marca País Media!* 🚀\n\nLos contenidos de la *Semana ${num}* ya están listos para tu revisión.\n\nHemos aplicado nuevos cambios y nos encantaría conocer tu opinión para seguir puliendo cada detalle. ✨\n\nEntra directamente aquí:\n${weekUrl}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function addToCart(item, id) {
+            const val = document.getElementById(id).value;
+            if(!val.trim()) return alert("Escribe tu sugerencia.");
+            suggestions.push({ item, text: val });
+            document.getElementById(id).value = "";
+            updateCart();
+            playSound();
+        }
+
+        function updateCart() {
+            document.getElementById('cart-floater').style.display = suggestions.length > 0 ? 'flex' : 'none';
+            document.getElementById('cart-count').innerText = suggestions.length;
+            document.getElementById('cart-items-list').innerHTML = suggestions.map(s => `<div class="cart-item"><strong>${s.item}</strong>${s.text}</div>`).join("");
+        }
+
+        function toggleCart() { playSound(); document.getElementById('cart-panel').classList.toggle('open'); }
+
+        function sendFinalWhatsApp() {
+            if(suggestions.length === 0) return;
+            let msg = "*REVISIÓN MARCA PAÍS MEDIA*%0A%0A";
+            suggestions.forEach((s, i) => msg += `*${i+1}. ${s.item}:*%0A_${s.text}_%0A%0A`);
+            window.open(`https://api.whatsapp.com/send?phone=584129315743&text=${msg}`, '_blank');
+        }
+
+        function sendProductionEmail() {
+            const url = document.getElementById('final-url').value;
+            window.location.href = `mailto:admin@tuweb.com?subject=UPDATE&body=${url}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const weekParam = urlParams.get('week');
+            if (weekParam) {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('main-content').style.opacity = '1';
+                document.getElementById('nav-dash').classList.add('active-link');
+                document.getElementById('weeks-selector').style.display = 'grid';
+                const weekCards = document.querySelectorAll('.week-card');
+                if(weekCards[weekParam-1]) showWeek(weekParam, weekCards[weekParam-1]);
+            }
+        });
+    </script>
+</body>
+</html>
