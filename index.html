@@ -60,7 +60,9 @@
         .plan-header h2 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800; text-transform: uppercase; line-height: 1.1; margin: 0; }
         .plan-header p { opacity: 0.5; font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 5px; }
 
-        /* --- BOTÓN NOTIFICACIÓN --- */
+        /* --- BOTONES DE ACCIÓN (WHATSAPP Y DRIVE) --- */
+        .header-actions { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 25px; }
+        
         .btn-share-update {
             display: inline-flex;
             align-items: center;
@@ -73,7 +75,6 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-top: 25px;
             cursor: pointer;
             border: none;
             transition: all 0.3s ease;
@@ -83,6 +84,29 @@
             background: #1ebe57; 
             transform: translateY(-3px); 
             box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            background: #4285F4;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(66, 133, 244, 0.2);
+        }
+        .btn-download:hover { 
+            background: #3367d6; 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 30px rgba(66, 133, 244, 0.4);
         }
 
         /* --- ITEMS Y TÍTULOS --- */
@@ -144,7 +168,7 @@
 
         footer { padding: 80px 20px; text-align: center; opacity: 0.2; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; }
 
-        @media (max-width: 768px) { #cart-panel { width: 100%; } .weeks-grid { grid-template-columns: repeat(2, 1fr); margin-top: 80px; } .prod-container { grid-template-columns: 1fr; } .prod-sidebar { border-right: none; border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; } }
+        @media (max-width: 768px) { #cart-panel { width: 100%; } .weeks-grid { grid-template-columns: repeat(2, 1fr); margin-top: 80px; } .prod-container { grid-template-columns: 1fr; } .prod-sidebar { border-right: none; border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; } .header-actions { flex-direction: column; width: 100%; } .btn-share-update, .btn-download { width: 100%; justify-content: center; } }
     </style>
 </head>
 <body>
@@ -242,12 +266,15 @@
             <div class="plan-header">
                 <p>Semana 1: Industria de hierro y Acero (Lo que nos sostiene)</p>
                 <h2>Objetivo: Demostrar que el acero venezolano es la fuerza real que levanta las obras más grandes del país.</h2>
-                <button class="btn-share-update" onclick="shareUpdate(1)">🚀 Notificar Novedades (WhatsApp)</button>
+                <div class="header-actions">
+                    <button class="btn-share-update" onclick="shareUpdate(1)">🚀 Notificar Novedades (WhatsApp)</button>
+                    <a href="https://drive.google.com/drive/folders/1ByvO3SFrGNwT_ZWhG-byGk89c1rY4dFE?usp=sharing" target="_blank" class="btn-download">📁 Descargar Materiales</a>
+                </div>
             </div>
             
             <div class="item-block">
                 <h3 class="item-title">VIDEO INTEGRACIONAL: Somos más que una postal (Guayana)</h3>
-                <div class="narrativa-box">"Aquí, el paisaje vale oro. Nuestra belleza conquista, pero debajo de estas tierras ruge el hierro que el mundo necesita. Aquí no somos solo una postal; exportamos la fuerza que levanta naciones. somos la potencia que forja el futuro."</div>
+                <div class="narrativa-box">"Aquí, el paisaje vale oro. Nuestra belleza enamora, pero debajo de estas tierras ruge el hierro que construye nuestro País. Aquí no somos solo una postal; exportamos la fuerza que levanta naciones. somos la potencia que forja el futuro."</div>
                 <div class="video-container-vimeo"><iframe src="https://player.vimeo.com/video/1185296217" frameborder="0"></iframe></div>
                 <div class="product-feedback"><label>Sugerencias:</label><textarea id="f11" placeholder="Tu feedback..."></textarea><button class="btn-action" onclick="addToCart('S1: Integracional Hierro', 'f11')">Añadir a Revisión</button></div>
             </div>
@@ -277,7 +304,10 @@
             <div class="plan-header">
                 <p>Semana 2: Oro Fértil (El alma en cada grano)</p>
                 <h2>Objetivo: Resaltar la excelencia agrícola y la tecnología con propósito.</h2>
-                <button class="btn-share-update" onclick="shareUpdate(2)">🚀 Notificar Novedades (WhatsApp)</button>
+                <div class="header-actions">
+                    <button class="btn-share-update" onclick="shareUpdate(2)">🚀 Notificar Novedades (WhatsApp)</button>
+                    <a href="https://drive.google.com/drive/folders/1uTuoHzfQJ1GNMNzEj4YqBjOolFToZV3N?usp=sharing" target="_blank" class="btn-download">📁 Descargar Materiales</a>
+                </div>
             </div>
             
             <div class="item-block">
